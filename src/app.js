@@ -7,7 +7,6 @@ import { fileURLToPath } from 'url'
 import clientesRouters from './routes/clientes.routes.js'
 import prodRouters from './routes/prod.routes.js'
 import autentiRouters from './routes/autenti.routes.js'
-import usuRouters from './routes/usu.routes.js'
 import pedidosRoutes from './routes/pedidos.routes.js'
 
 // ✅ Corrección de __dirname
@@ -31,7 +30,6 @@ app.use(cors(corsOptions))
 app.use('/api', clientesRouters)
 app.use('/api', prodRouters)
 app.use('/api/autenti', autentiRouters)
-app.use('/api', usuRouters)
 app.use('/api', pedidosRoutes)
 
 app.use((req, resp) => {
