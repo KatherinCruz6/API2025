@@ -33,13 +33,6 @@ export const getProdxID = async (req, res) => {
 //se envia un objeto en el cuerpo cada que se hace un post(un insert ya que post es eso un insert)
 export const postProd = async (req, res) => {
   try {
-    // justo al inicio de postProd y putProd, dentro del try
-    console.log('--- SUBIDA IMAGEN START ---');
-    console.log('CONTENT-TYPE:', req.headers['content-type']);
-    console.log('req.file:', req.file);
-    console.log('req.body:', req.body);
-    console.log('---------------------------');
-
     const { prod_codigo, prod_nombre, prod_stock, prod_precio, prod_activo } = req.body
     const prod_imagen = req.file?.path || null // ✅ URL de Cloudinary
 
@@ -83,13 +76,6 @@ export const postProd = async (req, res) => {
 //funcion para modificar es decir un update     put para reemplazar todo el objeto y patch para solo ciertos campos
 export const putProd = async (req, res) => {
   try {
-    // justo al inicio de postProd y putProd, dentro del try
-    console.log('--- SUBIDA IMAGEN START ---');
-    console.log('CONTENT-TYPE:', req.headers['content-type']);
-    console.log('req.file:', req.file);
-    console.log('req.body:', req.body);
-    console.log('---------------------------');
-
     const { id } = req.params
     const { prod_codigo, prod_nombre, prod_stock, prod_precio, prod_activo } = req.body
     let prod_imagen = req.file?.path || null // ✅ URL Cloudinary
