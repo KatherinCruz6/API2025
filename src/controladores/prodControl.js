@@ -1,18 +1,4 @@
-import { conmysql } from '../db.js';
-
-// URL por defecto (si no hay imagen)
-const DEFAULT_IMAGE = 'https://res.cloudinary.com/dxohz9u3v/image/upload/v1762215241/default_xhnojd.png';
-
-// Utilitario para obtener la URL desde req.file (soporta varias propiedades según storage)
-function getFileUrlFromReqFile(file) {
-  if (!file) return null;
-  if (file.path) return file.path;
-  if (file.secure_url) return file.secure_url;
-  if (file.url) return file.url;
-  if (file.location) return file.location;
-  if (file.info && file.info.secure_url) return file.info.secure_url;
-  return null;
-}
+import { conmysql } from '../db.js'
 
 export const getProd = async (req, res) => {
   try {
@@ -32,7 +18,7 @@ export const getProdxID = async (req, res) => {
     const [result] = await conmysql.query(' select * from productos where prod_id =?', [req.params.id])   //es consulta el query
     if (result.length <= 0) return res.json({
       cantidad: 0,
-      message: "Usuario no encontrado"
+      message: "Producto no encontrado"
     })
     res.json({
       cantidad: result.length,
@@ -47,13 +33,8 @@ export const getProdxID = async (req, res) => {
 //se envia un objeto en el cuerpo cada que se hace un post(un insert ya que post es eso un insert)
 export const postProd = async (req, res) => {
   try {
-    // DEBUG: ver qué llega (temporal)
-    console.log('CONTENT-TYPE:', req.headers['content-type']);
-    console.log('req.file:', req.file);
-    console.log('req.body:', req.body);
-
-    const { prod_codigo, prod_nombre, prod_stock, prod_precio, prod_activo } = req.body;
-    const prod_imagen = getFileUrlFromReqFile(req.file) || DEFAULT_IMAGE; // URL de Cloudinary o default
+    const { prod_codigo, prod_nombre, prod_stock, prod_precio, prod_activo } = req.body
+    const prod_imagen = req.file?.path || null // ✅ URL de Cloudinary
 
     // 🟢 Interpretar correctamente el valor de prod_activo
     let activo = 0;
@@ -68,27 +49,27 @@ export const postProd = async (req, res) => {
       [prod_codigo]
     )
     if (existe.length > 0) {
-      return res.status(400).json({ estado: 0, mensaje: `El código ${prod_codigo} ya existe` })
-    }
+      return res.status(400).json({ estado: 0, mensaje: `El código ${ prod_codigo } ya existe` })
+  }
 
     const [result] = await conmysql.query(
-      'INSERT INTO productos (prod_codigo, prod_nombre, prod_stock, prod_precio, prod_activo, prod_imagen) VALUES (?,?,?,?,?,?)',
-      [prod_codigo, prod_nombre, prod_stock, prod_precio, activo, prod_imagen]
-    )
+    'INSERT INTO productos (prod_codigo, prod_nombre, prod_stock, prod_precio, prod_activo, prod_imagen) VALUES (?,?,?,?,?,?)',
+    [prod_codigo, prod_nombre, prod_stock, prod_precio, activo, prod_imagen]
+  )
 
-    // 🟢 Nuevo formato de respuesta
-    res.status(201).json({
-      estado: 1,
-      mensaje: 'Producto registrado exitosamente',
-      data: {
-        prod_id: result.insertId,
-        prod_imagen: prod_imagen
-      }
-    })
-  } catch (error) {
-    console.error('Error en postProd:', error)
-    res.status(500).json({ estado: 0, mensaje: 'Error en el servidor', error: error.message })
-  }
+  // 🟢 Nuevo formato de respuesta
+  res.status(201).json({
+    estado: 1,
+    mensaje: 'Producto registrado exitosamente',
+    data: {
+      prod_id: result.insertId,
+      prod_imagen: prod_imagen
+    }
+  })
+} catch (error) {
+  console.error('Error en postProd:', error)
+  res.status(500).json({ estado: 0, mensaje: 'Error en el servidor', error: error.message })
+}
 }
 
 
@@ -97,14 +78,7 @@ export const putProd = async (req, res) => {
   try {
     const { id } = req.params
     const { prod_codigo, prod_nombre, prod_stock, prod_precio, prod_activo } = req.body
-
-    // DEBUG: ver qué llega (temporal)
-    console.log('CONTENT-TYPE:', req.headers['content-type']);
-    console.log('req.file:', req.file);
-    console.log('req.body:', req.body);
-
-    // Intentamos extraer la URL desde req.file; si no llega, la dejamos en null para luego mantener la actual o fallback
-    let prod_imagen = getFileUrlFromReqFile(req.file) || null;
+    let prod_imagen = req.file?.path || null // ✅ URL Cloudinary
 
     // 🟢 Interpretar correctamente el valor de prod_activo
     let activo = 0;
@@ -128,10 +102,8 @@ export const putProd = async (req, res) => {
         'SELECT prod_imagen FROM productos WHERE prod_id = ?',
         [id]
       )
-      if (imgActual.length > 0 && imgActual[0].prod_imagen) {
+      if (imgActual.length > 0) {
         prod_imagen = imgActual[0].prod_imagen
-      } else {
-        prod_imagen = DEFAULT_IMAGE
       }
     }
 
