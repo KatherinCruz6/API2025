@@ -33,6 +33,13 @@ export const getProdxID = async (req, res) => {
 //se envia un objeto en el cuerpo cada que se hace un post(un insert ya que post es eso un insert)
 export const postProd = async (req, res) => {
   try {
+    // justo al inicio de postProd y putProd, dentro del try
+    console.log('--- SUBIDA IMAGEN START ---');
+    console.log('CONTENT-TYPE:', req.headers['content-type']);
+    console.log('req.file:', req.file);
+    console.log('req.body:', req.body);
+    console.log('---------------------------');
+
     const { prod_codigo, prod_nombre, prod_stock, prod_precio, prod_activo } = req.body
     const prod_imagen = req.file?.path || null // ✅ URL de Cloudinary
 
@@ -49,33 +56,40 @@ export const postProd = async (req, res) => {
       [prod_codigo]
     )
     if (existe.length > 0) {
-      return res.status(400).json({ estado: 0, mensaje: `El código ${ prod_codigo } ya existe` })
-  }
+      return res.status(400).json({ estado: 0, mensaje: `El código ${prod_codigo} ya existe` })
+    }
 
     const [result] = await conmysql.query(
-    'INSERT INTO productos (prod_codigo, prod_nombre, prod_stock, prod_precio, prod_activo, prod_imagen) VALUES (?,?,?,?,?,?)',
-    [prod_codigo, prod_nombre, prod_stock, prod_precio, activo, prod_imagen]
-  )
+      'INSERT INTO productos (prod_codigo, prod_nombre, prod_stock, prod_precio, prod_activo, prod_imagen) VALUES (?,?,?,?,?,?)',
+      [prod_codigo, prod_nombre, prod_stock, prod_precio, activo, prod_imagen]
+    )
 
-  // 🟢 Nuevo formato de respuesta
-  res.status(201).json({
-    estado: 1,
-    mensaje: 'Producto registrado exitosamente',
-    data: {
-      prod_id: result.insertId,
-      prod_imagen: prod_imagen
-    }
-  })
-} catch (error) {
-  console.error('Error en postProd:', error)
-  res.status(500).json({ estado: 0, mensaje: 'Error en el servidor', error: error.message })
-}
+    // 🟢 Nuevo formato de respuesta
+    res.status(201).json({
+      estado: 1,
+      mensaje: 'Producto registrado exitosamente',
+      data: {
+        prod_id: result.insertId,
+        prod_imagen: prod_imagen
+      }
+    })
+  } catch (error) {
+    console.error('Error en postProd:', error)
+    res.status(500).json({ estado: 0, mensaje: 'Error en el servidor', error: error.message })
+  }
 }
 
 
 //funcion para modificar es decir un update     put para reemplazar todo el objeto y patch para solo ciertos campos
 export const putProd = async (req, res) => {
   try {
+    // justo al inicio de postProd y putProd, dentro del try
+    console.log('--- SUBIDA IMAGEN START ---');
+    console.log('CONTENT-TYPE:', req.headers['content-type']);
+    console.log('req.file:', req.file);
+    console.log('req.body:', req.body);
+    console.log('---------------------------');
+
     const { id } = req.params
     const { prod_codigo, prod_nombre, prod_stock, prod_precio, prod_activo } = req.body
     let prod_imagen = req.file?.path || null // ✅ URL Cloudinary
